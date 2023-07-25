@@ -1,4 +1,4 @@
-function [rec_pos, PDOP] = calcSPP( sats, obs, time_, eph, v_light, el_mask)
+function [rec_pos, PDOP] = calcSPP( sats, obs, time_, snr, eph, v_light, el_mask)
 % ----------------------------------------------------------------------- %
 % function for calculation of single point positioning for a single epoch
 % ----------------------------------------------------------------------- %
@@ -12,6 +12,12 @@ delta_rho = zeros(m,1);
 designmatrix_A = zeros(m,4);
 Q_ll = eye(m);
 rec_0 = zeros(4,1);
+
+%% 3.3. Weighting schemes based on both satellite elevation and C/N0
+s0 = 10;
+s1_threshold = 40;
+A_snr = 30;
+B_snr = 30;
 while max(abs(deltax)) > 1e-3
     % iteration for each observation
     for i = 1:m
@@ -28,9 +34,16 @@ while max(abs(deltax)) > 1e-3
         [sat_pos, clock_corr] = satellitePosition(sow, eph, sv);
         travel_time = travel_dist / v_light;
         sat_pos_rot = e_r_corr(travel_time, sat_pos);
-        [az,el(i,1),dist] = topocent(rec_0(1:3),sat_pos_rot - rec_0(1:3));
+        
+        [az,el,dist] = topocent(rec_0(1:3),sat_pos_rot - rec_0(1:3));
+        %% Why use el(i), i change el(i) --> el
+        %% The value of el should be in degrees, but the value are very small, for example 1.15056.
+        %% Something wrong here in topocent function.
+%         disp('i')
+%         disp(vpa(el, 6))
+%         disp(vpa(sind(el), 6))
 
-        [troposphere] = tropo(sin(el(i)),0,1013,293,50,0,0,0);
+        [troposphere] = tropo(sind(el),0,1013,293,50,0,0,0);
         sat_clock_off = clock_corr * v_light;
         A = norm(sat_pos_rot - rec_0(1:3));
         B = rec_0(4);
@@ -44,6 +57,23 @@ while max(abs(deltax)) > 1e-3
         zs_zu = (2*rec_0(3) - 2*sat(3));
         denom = (2*((rec_0(1) - sat(1))^2 + (rec_0(2) - sat(2))^2 + (rec_0(3) - sat(3))^2)^(1/2));
         designmatrix_A(i,:) = [xs_xu/denom, ys_yu/denom, zs_zu/denom, 1];
+
+        %% 3.3. Weighting schemes based on both satellite elevation and C/N0
+        %% PAPER: Using local redundancy to improve GNSS absolute positioning in harsh scenario.
+        %% BUG in line 33.
+        
+
+        if snr(i) < s1_threshold
+            snr_minus_threshold = snr(i) - s1_threshold;
+            s0_minus_threshold = s0 - s1_threshold;
+            r = 10.^-1*(snr_minus_threshold/B_snr) * ...
+                ((A / 10.^-1*(s0_minus_threshold/B_snr)  -1) * (snr_minus_threshold - s0_minus_threshold) + 1);
+            Q_ll(i, i) = (1 / sind(el).^2) * r;
+        else
+            Q_ll(i, i) = 1;
+        end
+        disp(vpa(Q_ll(i, i)), 6);
+        %% BUGGY 6.29588e+13 Line 75 is so big.
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     end
 
