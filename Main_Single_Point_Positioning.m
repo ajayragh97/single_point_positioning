@@ -30,18 +30,19 @@ rnx = '01_data/master_igg.16o';
 
 % load *.mat files if they already exist 
 if isfile('01_data/eph.mat') && isfile('01_data/observations.mat') && ...
-        isfile('01_data/satellites.mat') && isfile('01_data/time.mat')
+        isfile('01_data/satellites.mat') && isfile('01_data/time.mat') && ...
+        isfile('01_data/snr.mat')
     
     load('01_data/eph.mat');
     load('01_data/observations.mat');
     load('01_data/time.mat');
     load('01_data/satellites.mat');
+    load('01_data/snr.mat');
 else
     % ephemeris
     [~, eph, ephTime, ~] = readEphGps(nav,'prepareData',40);
     % observations
-    [errNum, header, obs, date, time, obsOut] = readRinex(rnx,'prepareData',40,1);
-    disp(length(obs));
+    [errNum, header, obs, date, time] = readRinex(rnx,'prepareData',40,1);
     % reallocate dataset
     n = size(date,1);
     observations = cell(n,1);
@@ -50,14 +51,14 @@ else
     for i = 1:n
         observations{i} = obs(i).obsG(obs(i).satG,1);
         satellites{i} = obs(i).satG;
-        snr{i} = obsOut(:,5);
+        snr{i} = obs(i).obsG(obs(i).satG,3);
     end
-    
     % save mat files
     save('01_data/eph.mat','eph')
     save('01_data/time.mat','time')
     save('01_data/satellites.mat','satellites')
     save('01_data/observations.mat','observations')
+    save('01_data/snr.mat','snr')
 end
 
 %% ----- Single Point Positioning -------------------------------------- %%

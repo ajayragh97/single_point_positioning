@@ -1,4 +1,4 @@
-function [errNum, header, obs, date, sow, obsOut] = iggReadRinex(filename,projectname,maxSat,mr)
+function [errNum, header, obs, date, sow] = iggReadRinex(filename,projectname,maxSat,mr)
 % ======================================================================= %
 % Function to read header and body of a RINEX-file
 % ----------------------------------------------------------------------- %
