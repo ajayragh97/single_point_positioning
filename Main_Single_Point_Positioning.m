@@ -80,8 +80,8 @@ for i=1:length(time)
     sats = satellites{i};
     obs = observations{i};
     time_ = time(i);
-
-    [rec_pos, pdop] = calcSPP(sats, obs, time_, eph, v_light, el_mask);
+    snr_ = snr{i};
+    [rec_pos, pdop, R] = calcSPP(sats, obs, time_,snr_, eph, v_light, el_mask);
 
      
     

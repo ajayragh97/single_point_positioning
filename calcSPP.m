@@ -1,4 +1,4 @@
-function [rec_pos, PDOP] = calcSPP( sats, obs, time_, eph, v_light, el_mask)
+function [rec_pos, PDOP, R] = calcSPP( sats, obs, time_, snr_, eph, v_light, el_mask)
 % ----------------------------------------------------------------------- %
 % function for calculation of single point positioning for a single epoch
 % ----------------------------------------------------------------------- %
@@ -12,6 +12,10 @@ delta_rho = zeros(m,1);
 designmatrix_A = zeros(m,4);
 Q_ll = eye(m);
 rec_0 = zeros(4,1);
+s0 = 10;
+s1 = 40;
+a = 30;
+b = 30;
 while max(abs(deltax)) > 1e-3
     % iteration for each observation
     for i = 1:m
@@ -22,6 +26,11 @@ while max(abs(deltax)) > 1e-3
         travel_dist = obs(i);
         obs_time = time_;
         sow = obs_time - travel_dist/v_light;
+        term1 = -(snr_(i) - s1)/b;
+        term2 = (a / 10^-((s0-s1)/b))-1;
+        term3 = ((snr_(i) - s1)/(s0-s1));
+        
+        r = 10 ;
         if iteration > 1
             sow = obs_time - rho_init(i)/v_light;
         end
