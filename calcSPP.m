@@ -28,9 +28,9 @@ while max(abs(deltax)) > 1e-3
         travel_dist = obs(i);
         obs_time = time_;
         sow = obs_time - travel_dist/v_light;
-        term1 = -(snr_(i) - s1)/b;
-        term2 = (a / 10^-((s0-s1)/b))-1;
-        term3 = ((snr_(i) - s1)/(s0-s1));
+        term1 = 10^-((snr(i) - s1_threshold)/B_snr);
+        term2 = (A_snr / 10^-((s0-s1_threshold)/B_snr))-1;
+        term3 = ((snr(i) - s1_threshold)/(s0-s1_threshold));
         
         r = 10 ;
         if iteration > 1
@@ -40,7 +40,7 @@ while max(abs(deltax)) > 1e-3
         travel_time = travel_dist / v_light;
         sat_pos_rot = e_r_corr(travel_time, sat_pos);
         
-        [az,el,dist] = topocent(rec_0(1:3),sat_pos_rot - rec_0(1:3));
+        [az,el(i,1),dist] = topocent(rec_0(1:3),sat_pos_rot - rec_0(1:3));
         %% Why use el(i), i change el(i) --> el
         %% The value of el should be in degrees, but the value are very small, for example 1.15056.
         %% Something wrong here in topocent function.
@@ -48,7 +48,7 @@ while max(abs(deltax)) > 1e-3
 %         disp(vpa(el, 6))
 %         disp(vpa(sind(el), 6))
 
-        [troposphere] = tropo(sind(el),0,1013,293,50,0,0,0);
+        [troposphere] = tropo(sin(el(i)),0,1013,293,50,0,0,0);
         sat_clock_off = clock_corr * v_light;
         A = norm(sat_pos_rot - rec_0(1:3));
         B = rec_0(4);
