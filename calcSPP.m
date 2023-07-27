@@ -11,6 +11,8 @@ m = length(sats);
 delta_rho = zeros(m,1);
 designmatrix_A = zeros(m,4);
 Q_ll = eye(m);
+% weight matrix
+P = inv(Q_ll);
 rec_0 = zeros(4,1);
 
 %% 3.3. Weighting schemes based on both satellite elevation and C/N0
@@ -28,11 +30,7 @@ while max(abs(deltax)) > 1e-3
         travel_dist = obs(i);
         obs_time = time_;
         sow = obs_time - travel_dist/v_light;
-        term1 = 10^-((snr(i) - s1_threshold)/B_snr);
-        term2 = (A_snr / 10^-((s0-s1_threshold)/B_snr))-1;
-        term3 = ((snr(i) - s1_threshold)/(s0-s1_threshold));
-        
-        r = 10 ;
+               
         if iteration > 1
             sow = obs_time - rho_init(i)/v_light;
         end
@@ -69,15 +67,25 @@ while max(abs(deltax)) > 1e-3
         
 
         if snr(i) < s1_threshold
-            snr_minus_threshold = snr(i) - s1_threshold;
-            s0_minus_threshold = s0 - s1_threshold;
-            r = 10.^-1*(snr_minus_threshold/B_snr) * ...
-                ((A / 10.^-1*(s0_minus_threshold/B_snr)  -1) * (snr_minus_threshold - s0_minus_threshold) + 1);
-            Q_ll(i, i) = (1 / sind(el).^2) * r;
+            term1 = 10^-((snr(i) - s1_threshold)/B_snr);
+            term2 = (A_snr / 10^-((s0-s1_threshold)/B_snr))-1;
+            term3 = ((snr(i) - s1_threshold)/(s0-s1_threshold));
+            r = term1 * (term2 * term3 + 1);
+            
+            
+            P(i, i) = (1 / sin(el(i))^2) * r;
         else
-            Q_ll(i, i) = 1;
+            P(i, i) = 1;
         end
-        disp(vpa(Q_ll(i, i)), 6);
+        % disp("sin(elevation)")
+        % disp(sin(el(i))^2)
+        % if(Q_ll(i, i) > 10000000)
+        %     disp('signal power')
+        %     disp(snr(i))
+        %     disp('sigma value')
+        %     disp(vpa(Q_ll(i, i)), 6);
+        %     % disp('very')
+        % end
         %% BUGGY 6.29588e+13 Line 75 is so big.
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     end
@@ -89,18 +97,16 @@ while max(abs(deltax)) > 1e-3
     % redundancy matrix
     I = eye(m);
     R = I - designmatrix_A * inv(designmatrix_A' * designmatrix_A) * designmatrix_A';
-
-    % weight matrix
-    P = inv(Q_ll);
-
+    wi = diag(P)./diag(R);
+    P = diag(wi);
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Applying elevation Mask %%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    idxDel = el<0;
-    designmatrix_A(idxDel,:) = [];
-    P(idxDel,:) = [];
-    P(:,idxDel) = [];
-    delta_rho(idxDel) = [];
+    % idxDel = el<0;
+    % designmatrix_A(idxDel,:) = [];
+    % P(idxDel,:) = [];
+    % P(:,idxDel) = [];
+    % delta_rho(idxDel) = [];
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     % Setup normal equations
