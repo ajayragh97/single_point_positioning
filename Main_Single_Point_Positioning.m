@@ -97,62 +97,72 @@ end
 
 %% ----- Plot results -------------------------------------------------- %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% TODO: plot results in cartesian coordinates with corresponding time
-% Calculate the mean of each coordinate dimension
-mean_pos = mean(user_pos);
-% Subtract the mean from each coordinate dimension
-centered_pos = user_pos - mean_pos;
-% Plot the centered coordinates as a time series
-figure;
-
-xPos = 0.05;
-yPos = 0.9;
-annotation('textbox', [xPos, yPos, 0.1, 0.1], 'String', ['Elevation Mask: ' num2str(el_mask)], 'FontSize', 12, 'FontWeight', 'bold', 'EdgeColor', 'none');
-
-plot(time, centered_pos(:, 1), 'r', 'LineWidth', 1.5);
-hold on;
-plot(time, centered_pos(:, 2), 'g', 'LineWidth', 1.5);
-plot(time, centered_pos(:, 3), 'b', 'LineWidth', 1.5);
-hold off;
-xlabel('Observation Epoch');
-ylabel('Coordinate Value (Mean-Centered)');
-title('Mean-Centered Coordinates over Time');
-legend('X', 'Y', 'Z');
-grid on;
+% %% TODO: plot results in cartesian coordinates with corresponding time
+% % Calculate the mean of each coordinate dimension
+% mean_pos = mean(user_pos);
+% % Subtract the mean from each coordinate dimension
+% centered_pos = user_pos - mean_pos;
+% % Plot the centered coordinates as a time series
+% figure;
+% 
+% xPos = 0.05;
+% yPos = 0.9;
+% annotation('textbox', [xPos, yPos, 0.1, 0.1], 'String', ['Elevation Mask: ' num2str(el_mask)], 'FontSize', 12, 'FontWeight', 'bold', 'EdgeColor', 'none');
+% 
+% plot(time, centered_pos(:, 1), 'r', 'LineWidth', 1.5);
+% hold on;
+% plot(time, centered_pos(:, 2), 'g', 'LineWidth', 1.5);
+% plot(time, centered_pos(:, 3), 'b', 'LineWidth', 1.5);
+% hold off;
+% xlabel('Observation Epoch');
+% ylabel('Coordinate Value (Mean-Centered)');
+% title('Mean-Centered Coordinates over Time');
+% legend('X', 'Y', 'Z');
+% grid on;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% TODO: plot PDOP values and satellites with corresponding time
-figure;
-hold on;
-plot(PDOP, 'b');
-yyaxis right;
-numSatellites = cellfun(@numel, satellites);
-plot(numSatellites, 'r');
-ylabel('Number of Satellites');
-title('PDOP and Number of Satellites');
-
-xlabel('Time Step');
-yyaxis left;
-ylabel('PDOP');
-legend('PDOP', 'Number of Satellites');
-title('PDOP and Number of Satellites');
-
-xPos = 0.05;
-yPos = 0.9;
-annotation('textbox', [xPos, yPos, 0.1, 0.1], 'String', ['Elevation Mask: ' num2str(el_mask)], 'FontSize', 12, 'FontWeight', 'bold', 'EdgeColor', 'none');
-hold off;
+% figure;
+% hold on;
+% plot(PDOP, 'b');
+% yyaxis right;
+% numSatellites = cellfun(@numel, satellites);
+% plot(numSatellites, 'r');
+% ylabel('Number of Satellites');
+% title('PDOP and Number of Satellites');
+% 
+% xlabel('Time Step');
+% yyaxis left;
+% ylabel('PDOP');
+% legend('PDOP', 'Number of Satellites');
+% title('PDOP and Number of Satellites');
+% 
+% xPos = 0.05;
+% yPos = 0.9;
+% annotation('textbox', [xPos, yPos, 0.1, 0.1], 'String', ['Elevation Mask: ' num2str(el_mask)], 'FontSize', 12, 'FontWeight', 'bold', 'EdgeColor', 'none');
+% hold off;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% Extra plots%%
+%% Extra plots %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % figure;
-% user_pos_lla = ecef2lla(user_pos)
-% geoscatter(user_pos_lla(:,1),user_pos_lla(:,2),'^','filled')
+% user_pos_lla = ecef2lla(user_pos);
+% geoscatter(user_pos_lla(:,1),user_pos_lla(:,2),'^','filled');
 % latlim = [50+43/60+35/3600 50+43/60+45/3600]; % Latitude limits for Bonn
 % lonlim = [7+4/60+50/3600 7+5/60+30/3600];    % Longitude limits for Bonn
 % geolimits(latlim, lonlim);
 % title('Calculated SPP positions');
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Save data %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% save('03_data/EQW.mat','user_pos')
+save('03_data/RDM.mat','user_pos')
+
+
+
 

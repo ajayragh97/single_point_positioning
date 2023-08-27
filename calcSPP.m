@@ -39,12 +39,6 @@ while max(abs(deltax)) > 1e-3
         sat_pos_rot = e_r_corr(travel_time, sat_pos);
         
         [az,el(i,1),dist] = topocent(rec_0(1:3),sat_pos_rot - rec_0(1:3));
-        %% Why use el(i), i change el(i) --> el
-        %% The value of el should be in degrees, but the value are very small, for example 1.15056.
-        %% Something wrong here in topocent function.
-%         disp('i')
-%         disp(vpa(el, 6))
-%         disp(vpa(sind(el), 6))
 
         [troposphere] = tropo(sin(el(i)),0,1013,293,50,0,0,0);
         sat_clock_off = clock_corr * v_light;
@@ -63,8 +57,6 @@ while max(abs(deltax)) > 1e-3
 
         %% 3.3. Weighting schemes based on both satellite elevation and C/N0
         %% PAPER: Using local redundancy to improve GNSS absolute positioning in harsh scenario.
-        %% BUG in line 33.
-        
 
         if snr(i) < s1_threshold
             term1 = 10^-((snr(i) - s1_threshold)/B_snr);
@@ -72,21 +64,11 @@ while max(abs(deltax)) > 1e-3
             term3 = ((snr(i) - s1_threshold)/(s0-s1_threshold));
             r = term1 * (term2 * term3 + 1);
             
-            
             P(i, i) = (1 / sin(el(i))^2) * r;
         else
             P(i, i) = 1;
         end
-        % disp("sin(elevation)")
-        % disp(sin(el(i))^2)
-        % if(Q_ll(i, i) > 10000000)
-        %     disp('signal power')
-        %     disp(snr(i))
-        %     disp('sigma value')
-        %     disp(vpa(Q_ll(i, i)), 6);
-        %     % disp('very')
-        % end
-        %% BUGGY 6.29588e+13 Line 75 is so big.
+
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     end
 
@@ -99,6 +81,7 @@ while max(abs(deltax)) > 1e-3
     R = I - designmatrix_A * inv(designmatrix_A' * designmatrix_A) * designmatrix_A';
     wi = diag(P)./diag(R);
     P = diag(wi);
+
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Applying elevation Mask %%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
