@@ -161,7 +161,13 @@ end
 %% Save data %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % save('03_data/EQW.mat','user_pos')
-save('03_data/RDM.mat','user_pos')
+% save('03_data/EQW+RDM.mat','user_pos')
+% save('03_data/ELV01.mat','user_pos')
+% save('03_data/ELV01+RDM.mat','user_pos')
+% save('03_data/CN.mat','user_pos')
+% save('03_data/CN+RDM.mat','user_pos')
+save('03_data/ELVCN.mat','user_pos')
+% save('03_data/ELVCN+RDM.mat','user_pos')
 
 
 
