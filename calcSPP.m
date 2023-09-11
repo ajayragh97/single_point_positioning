@@ -21,6 +21,8 @@ s0 = 10;
 s1_threshold = 60;
 A_snr = 30;
 B_snr = 30;
+a_cn = 10;
+b_cn = 150;
 while max(abs(deltax)) > 1e-3
     % iteration for each observation
     for i = 1:m
@@ -66,21 +68,20 @@ while max(abs(deltax)) > 1e-3
             term2 = (A_snr / 10^-((s0-s1_threshold)/B_snr))-1;
             term3 = ((snr(i) - s1_threshold)/(s0-s1_threshold));
             r = term1 * (term2 * term3 + 1);
-            
+
             Q_ll(i, i) = r / sin(el(i))^2;
-            
         else
             Q_ll(i, i) = 1;
         end
 
         %% CN
-%         Q_ll(i, i) = 1 / (10 *10^-(snr(i)/10));
+        % Q_ll(i, i) = a_cn + (b_cn * (10^-(snr(i)/10)));
 
         %% ELV
-%         Q_ll(i, i) = 1 / sin(el(i))^2;
+        % Q_ll(i, i) = 1 / sin(el(i))^2;
 
         %% EQW
-%         Q_ll(i, i) = 1;
+        % Q_ll(i, i) = 1;
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     end
 
@@ -91,11 +92,11 @@ while max(abs(deltax)) > 1e-3
     % redundancy matrix
     I = eye(m);
     R = I - designmatrix_A * inv(designmatrix_A' * designmatrix_A) * designmatrix_A';
-   
-%     wi = diag(R)./diag(Q_ll);
+    
+    
+    % wi = diag(R)./diag(Q_ll);
     wi = 1./ diag(Q_ll);
     P = diag(wi);
-
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Applying elevation Mask %%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

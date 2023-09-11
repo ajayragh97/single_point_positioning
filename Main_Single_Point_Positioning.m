@@ -26,7 +26,7 @@ addpath([path,'/02_functions']);
 % navigation file
 nav = '01_data/master_igg.16n';
 % observation RINEX file
-rnx = '01_data/master_igg.16o';
+rnx = '01_data/master_igg_short.16o';
 
 % load *.mat files if they already exist 
 if isfile('01_data/eph.mat') && isfile('01_data/observations.mat') && ...
@@ -54,11 +54,11 @@ else
         snr{i} = obs(i).obsG(obs(i).satG,3);
     end
     % save mat files
-    save('01_data/eph.mat','eph')
-    save('01_data/time.mat','time')
-    save('01_data/satellites.mat','satellites')
-    save('01_data/observations.mat','observations')
-    save('01_data/snr.mat','snr')
+    save('01_data/eph_large.mat','eph')
+    save('01_data/time_large.mat','time')
+    save('01_data/satellites_large.mat','satellites')
+    save('01_data/observations_large.mat','observations')
+    save('01_data/snr_large.mat','snr')
 end
 
 %% ----- Single Point Positioning -------------------------------------- %%
@@ -72,6 +72,7 @@ end
 user_pos = zeros(length(time), 3);
 PDOP = zeros(length(time), 1);
 for i=1:length(time)
+% for i=1500:2500
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% TODO: write/complete the function 'calcSPP' to calculate the receiver
@@ -124,25 +125,28 @@ end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% TODO: plot PDOP values and satellites with corresponding time
-% figure;
-% hold on;
-% plot(PDOP, 'b');
-% yyaxis right;
-% numSatellites = cellfun(@numel, satellites);
-% plot(numSatellites, 'r');
-% ylabel('Number of Satellites');
-% title('PDOP and Number of Satellites');
-% 
-% xlabel('Time Step');
-% yyaxis left;
-% ylabel('PDOP');
-% legend('PDOP', 'Number of Satellites');
-% title('PDOP and Number of Satellites');
-% 
-% xPos = 0.05;
-% yPos = 0.9;
-% annotation('textbox', [xPos, yPos, 0.1, 0.1], 'String', ['Elevation Mask: ' num2str(el_mask)], 'FontSize', 12, 'FontWeight', 'bold', 'EdgeColor', 'none');
-% hold off;
+figure;
+hold on;
+plot(PDOP, 'b');
+yyaxis right;
+% numSatellites = zeros(size(satellites));
+% numSatellites(1500:2500) = cellfun(@numel, satellites(1500:2500));
+numSatellites= cellfun(@numel, satellites);
+% plot(numSatellites(1500:2500), 'r');
+plot(numSatellites, 'r');
+ylabel('PDOP');
+title('PDOP and Number of Satellites');
+
+xlabel('Time Step');
+yyaxis left;
+ylabel('satellites');
+legend( 'PDOP','Number of Satellites');
+% title('Number of Satellites');
+
+xPos = 0.05;
+yPos = 0.9;
+annotation('textbox', [xPos, yPos, 0.1, 0.1], 'String', ['Elevation Mask: ' num2str(el_mask)], 'FontSize', 12, 'FontWeight', 'bold', 'EdgeColor', 'none');
+hold off;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -160,14 +164,14 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Save data %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% save('03_data/EQW.mat','user_pos')
-% save('03_data/EQW+RDM.mat','user_pos')
-% save('03_data/ELV01.mat','user_pos')
-% save('03_data/ELV01+RDM.mat','user_pos')
-% save('03_data/CN.mat','user_pos')
-% save('03_data/CN+RDM.mat','user_pos')
-save('03_data/ELVCN.mat','user_pos')
-% save('03_data/ELVCN+RDM.mat','user_pos')
+% save('03_data/EQW_5300_6000.mat','user_pos')
+% save('03_data/EQW+RDM_5300_6000.mat','user_pos')
+% save('03_data/ELV01_5300_6000.mat','user_pos')
+% save('03_data/ELV01+RDM_5300_6000.mat','user_pos')
+% save('03_data/CN_large.mat','user_pos')
+% save('03_data/CN+RDM_large.mat','user_pos')
+% save('03_data/ELVCN_short_thresh_60.mat','user_pos')
+% save('03_data/ELVCN+RDM_short_thresh_45.mat','user_pos')
 
 
 
