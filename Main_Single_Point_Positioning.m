@@ -26,7 +26,7 @@ addpath([path,'/02_functions']);
 % navigation file
 nav = '01_data/master_igg.16n';
 % observation RINEX file
-rnx = '01_data/master_igg_short.16o';
+rnx = '01_data/master_igg.16o';
 
 % load *.mat files if they already exist 
 if isfile('01_data/eph.mat') && isfile('01_data/observations.mat') && ...
@@ -54,11 +54,11 @@ else
         snr{i} = obs(i).obsG(obs(i).satG,3);
     end
     % save mat files
-    save('01_data/eph_large.mat','eph')
-    save('01_data/time_large.mat','time')
-    save('01_data/satellites_large.mat','satellites')
-    save('01_data/observations_large.mat','observations')
-    save('01_data/snr_large.mat','snr')
+    % save('01_data/eph_large.mat','eph')
+    % save('01_data/time_large.mat','time')
+    % save('01_data/satellites_large.mat','satellites')
+    % save('01_data/observations_large.mat','observations')
+    % save('01_data/snr_large.mat','snr')
 end
 
 %% ----- Single Point Positioning -------------------------------------- %%
@@ -100,26 +100,24 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % %% TODO: plot results in cartesian coordinates with corresponding time
 % % Calculate the mean of each coordinate dimension
-% mean_pos = mean(user_pos);
-% % Subtract the mean from each coordinate dimension
-% centered_pos = user_pos - mean_pos;
-% % Plot the centered coordinates as a time series
-% figure;
-% 
-% xPos = 0.05;
-% yPos = 0.9;
-% annotation('textbox', [xPos, yPos, 0.1, 0.1], 'String', ['Elevation Mask: ' num2str(el_mask)], 'FontSize', 12, 'FontWeight', 'bold', 'EdgeColor', 'none');
-% 
-% plot(time, centered_pos(:, 1), 'r', 'LineWidth', 1.5);
-% hold on;
-% plot(time, centered_pos(:, 2), 'g', 'LineWidth', 1.5);
-% plot(time, centered_pos(:, 3), 'b', 'LineWidth', 1.5);
-% hold off;
-% xlabel('Observation Epoch');
-% ylabel('Coordinate Value (Mean-Centered)');
-% title('Mean-Centered Coordinates over Time');
-% legend('X', 'Y', 'Z');
-% grid on;
+mean_pos = mean(user_pos);
+% Subtract the mean from each coordinate dimension
+centered_pos = user_pos - mean_pos;
+% Plot the centered coordinates as a time series
+figure;
+% Define the number of rows and columns for the subplot layout
+numRows = 3;
+numCols = 1;
+
+% Create subplots
+for i = 1:3
+    subplot(numRows, numCols, i);
+    plot(time, centered_pos(:, i), 'LineWidth', 1.5);
+    xlabel('Observation Epoch');
+    ylabel(['Coordinate Value (Mean-Centered) ' char('X' + i - 1)]);
+    title(['Mean-Centered Coordinate ' char('X' + i - 1) ' over Time']);
+    grid on;
+end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -130,16 +128,16 @@ hold on;
 plot(PDOP, 'b');
 yyaxis right;
 % numSatellites = zeros(size(satellites));
-% numSatellites(1500:2500) = cellfun(@numel, satellites(1500:2500));
+% numSatellites(5300:6000) = cellfun(@numel, satellites(5300:6000));
 numSatellites= cellfun(@numel, satellites);
-% plot(numSatellites(1500:2500), 'r');
+% plot(numSatellites(5300:6000), 'r');
 plot(numSatellites, 'r');
-ylabel('PDOP');
+ylabel('Satellites');
 title('PDOP and Number of Satellites');
 
 xlabel('Time Step');
 yyaxis left;
-ylabel('satellites');
+ylabel('PDOP');
 legend( 'PDOP','Number of Satellites');
 % title('Number of Satellites');
 
@@ -152,26 +150,31 @@ hold off;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Extra plots %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% figure;
-% user_pos_lla = ecef2lla(user_pos);
-% geoscatter(user_pos_lla(:,1),user_pos_lla(:,2),'^','filled');
-% latlim = [50+43/60+35/3600 50+43/60+45/3600]; % Latitude limits for Bonn
-% lonlim = [7+4/60+50/3600 7+5/60+30/3600];    % Longitude limits for Bonn
-% geolimits(latlim, lonlim);
-% title('Calculated SPP positions');
+figure;
+plot(PDOP, 'b');
+ylabel('pdop');
+title('PDOP');
+
+figure;
+user_pos_lla = ecef2lla(user_pos);
+geoscatter(user_pos_lla(:,1),user_pos_lla(:,2),'^','filled');
+latlim = [50+43/60+35/3600 50+43/60+45/3600]; % Latitude limits for Bonn
+lonlim = [7+4/60+50/3600 7+5/60+30/3600];    % Longitude limits for Bonn
+geolimits(latlim, lonlim);
+title('Calculated SPP positions');
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Save data %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% save('03_data/EQW_5300_6000.mat','user_pos')
-% save('03_data/EQW+RDM_5300_6000.mat','user_pos')
-% save('03_data/ELV01_5300_6000.mat','user_pos')
-% save('03_data/ELV01+RDM_5300_6000.mat','user_pos')
-% save('03_data/CN_large.mat','user_pos')
-% save('03_data/CN+RDM_large.mat','user_pos')
-% save('03_data/ELVCN_short_thresh_60.mat','user_pos')
-% save('03_data/ELVCN+RDM_short_thresh_45.mat','user_pos')
+% save('03_data/EQW_large.mat','user_pos')
+% save('03_data/EQW+RDM_large.mat','user_pos')
+% save('03_data/ELV01_large.mat','user_pos')
+% save('03_data/ELV01+RDM_large.mat','user_pos')
+% save('03_data/CN_5300_6000_heavy.mat','user_pos')
+% save('03_data/CN+RDM_short_light.mat','user_pos')
+% save('03_data/ELVCN_large_thresh_50.mat','user_pos')
+% save(['03_data/ELVCN+RDM_large_thresh_60.mat'],'user_pos')
 
 
 
